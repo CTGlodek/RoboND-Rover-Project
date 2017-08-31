@@ -8,6 +8,28 @@ def decision_step(Rover):
     # Implement conditionals to decide what to do given perception data
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
+    clip_value = 10
+
+    if Rover.throttle == Rover.max_vel and Rover.vel == 0:
+        Rover.throttle = 0
+        Rover.brake = 0
+        Rover.mode = 'stuck'
+
+    if Rover.mode == 'stuck':
+        Rover.throttle = -0.2
+        Rover.steer = -90
+        Rover.mode = 'forward'
+
+    if Rover.picking_up and Rover.near_sample:
+        return Rover
+
+    if Rover.near_sample and not Rover.picking_up:
+        Rover.throttle = 0
+        Rover.brake = Rover.brake_set
+        if Rover.vel == 0:
+            Rover.brake = 0
+            Rover.mode = 'stop'
+            Rover.send_pickup = True
 
     # Example:
     # Check if we have vision data to make decisions with
@@ -58,7 +80,7 @@ def decision_step(Rover):
                     # Release the brake
                     Rover.brake = 0
                     # Set steer to mean angle
-                    Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+                    Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -20, 20)
                     Rover.mode = 'forward'
     # Just to make the rover do something 
     # even if no modifications have been made to the code
